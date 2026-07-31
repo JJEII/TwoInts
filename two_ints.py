@@ -1,3 +1,17 @@
+# This (very inefficient) program finds solutions to the following problem.
+#
+# There are two integers, A and B, greater than 1.
+# Mathematician S knows their sum.
+# Mathematician P knows their product.
+# (Neither is respectively told anything more than the above.)
+# The following conversation takes place.
+#
+#    S says to P: You don't know A and B.
+#    P says to S: Now I do.
+#    S says to P: Now I do, too.
+#
+# What are the values of A and B?
+
 def is_prime(n: int) -> bool:
     """Determine if number `n` is prime or not."""
     if not isinstance(n, int) or n < 2:
