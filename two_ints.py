@@ -1,11 +1,9 @@
-from math import sqrt
-
 def is_prime(n: int) -> bool:
     """Determine if number `n` is prime or not."""
     if not isinstance(n, int) or n < 2:
         return False
     primes = [2]
-    while n > primes[-1]:
+    while n > primes[-1]: # generate primes as needed
         prev_last = primes[-1]
         nxt = primes[-1]
         while primes[-1] == prev_last:
@@ -13,42 +11,45 @@ def is_prime(n: int) -> bool:
             for p in primes:
                 if nxt%p == 0:
                     break
-            else: # didn't break; found next prime
+            else: # found the next prime (didn't break out of loop)
                 primes.append(nxt)
     return n in primes
-    
+
 def assess_1(ab_sum: int) -> list[tuple[int, int]]:
     """Assess Statement 1.
-    Return a list containing all partitions of `ab_sum` that FAIL Statement 1."""
-    found_partitions = []
-    for A in range(2, ab_sum//2+1):
-        if is_prime(A) and (is_prime(ab_sum-A) or A*A==ab_sum-A):
-            found_partitions.append( (A, ab_sum-A) )
-    return found_partitions
+    Return list of all `ab_sum` bipartitions that FAIL Statement 1. (If empty, passes.)"""
+    bipartitions = []
+    A = 2
+    while A+A <= ab_sum:
+        B = ab_sum - A
+        if is_prime(A) and (is_prime(B) or A*A==B):
+            bipartitions.append( (A, B) ) # fail 1
+        A += 1
+    return bipartitions
 
 def assess_2(ab_prod: int) -> list[tuple[int, int]]:
     """Assess Statement 2.
-    Return a list containing all factor-pairs of `ab_prod` that PASS Statement 1 when summed."""
-    found_factor_pairs = []
-    for A in range(2, int(sqrt(ab_prod))+1):
-        if ab_prod%A == 0:
-            B = ab_prod//A
-            if len(assess_1(A+B)) == 0:
-                found_factor_pairs.append( (A, B) )
-    return found_factor_pairs
+    Return list of all `ab_prod` factor-pairs that PASS Statement 1 when summed."""
+    factor_pairs = []
+    A = 2
+    while A*A <= ab_prod:
+        B, remainder = divmod(ab_prod, A)
+        if remainder==0 and len(assess_1(A+B)) == 0:
+            factor_pairs.append( (A, B) ) # pass 1
+        A += 1
+    return factor_pairs
 
 def assess_3(ab_sum: int) -> list[tuple[int, int]]:
     """Assess Statement 3. (Assumes this `ab_sum` already passed Statement 1.)
-    Return a list containing all partitions of `ab_sum` that PASS Statement 2 when multiplied."""
-    found_partitions = []
-    for A in range(2, ab_sum//2+1):
+    Return list of all `ab_sum` bipartitions that PASS Statement 2 when multiplied."""
+    bipartitions = []
+    A = 2
+    while A+A <= ab_sum:
         B = ab_sum - A
-        result2 = assess_2(A*B)
-        if len(result2) == 1: # anything length != 1 is a failure
-            found_partitions.append(result2[0]) # flatten it (only one pair in there)
-            if len(found_partitions) > 1:
-                return found_partitions
-    return found_partitions
+        if len(result2:=assess_2(A*B)) == 1: # anything length != 1 is a failure
+            bipartitions.append(result2[0]) # pass 2; flatten it (only one factor-pair in there)
+        A += 1
+    return bipartitions
 
 PASS, FAIL = [f"\x1b[38;2;{r};{g};{b}m{sym}\x1b[0m" for sym, r, g, b in [["✓", 0, 180, 0], ["×", 200, 0, 0]]]
 for s in range(4, 101): # smallest conceivable sum is 4 (when A=2 and B=2)
@@ -61,4 +62,4 @@ for s in range(4, 101): # smallest conceivable sum is 4 (when A=2 and B=2)
             print(f"   {FAIL} Sum={s} fails Statement 3 because these factor-pairs pass Statement 2: {details}.")
     else: # statement 1 failed
         details = ", ".join(map(str, result1))
-        print(f"      {FAIL} Sum={s} fails Statement 1 because of these partitions: {details}.")
+        print(f"      {FAIL} Sum={s} fails Statement 1 because of these bipartitions: {details}.")
