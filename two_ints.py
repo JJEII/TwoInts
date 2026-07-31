@@ -1,83 +1,67 @@
-from math import sqrt, ceil, prod
-from itertools import product
-from functools import reduce
-import operator
+from math import sqrt
 from typing import Union
-from Prime import Prime
 
-def assess_1(sm: int) -> Union[None, list[int, int]]:
-    """Return None if all valid partitions succeed,
-    or [A, B] for first partition found that fails."""
-    for pt in range(2, sm//2+1):
-        if Prime.is_prime(pt) and (Prime.is_prime(sm-pt) or pt*pt==sm-pt):
-            return [pt, sm-pt]
-    return None
+def is_prime(n: int) -> bool:
+    """Determine if number `n` is prime or not."""
+    if not isinstance(n, int) or n < 2:
+        return False
+    primes = [2, 3, 5, 7]
+    while n > primes[-1]:
+        prev_last = primes[-1]
+        nxt = primes[-1]
+        while primes[-1] == prev_last:
+            nxt += 1
+            for p in primes:
+                if nxt%p == 0:
+                    break
+            else: # didn't break; found next prime
+                primes.append(nxt)
+    return n in primes
+    
+def assess_1(ab_sum: int) -> Union[None, list[int, int]]:
+    """Assess Statement 1.
+    Return a list containing all partitions of `ab_sum` that FAIL Statement 1."""
+    found_partitions = []
+    for A in range(2, ab_sum//2+1):
+        if is_prime(A) and (is_prime(ab_sum-A) or A*A==ab_sum-A):
+            found_partitions.append([A, ab_sum-A])
+    return found_partitions
 
-def assess_2(pd: int) -> Union[list[list[int, int]], list[list[int, int], list[int, int]]]:
-    """Return
-    (success)   [A, B] if only one factor-pair succeeds, or
-    (failure)   [] if none do, or
-    (failure)   [[A0, B0], [A1, B1]] if multiple do (the first pair of factor-pairs found)."""
+def assess_2(ab_prod: int) -> Union[list[list[int, int]], list[list[int, int], list[int, int]]]:
+    """Assess Statement 2.
+    Return a list containing all factor-pairs of `ab_prod` that PASS Statement 1 when summed."""
+    found_factor_pairs = []
+    for A in range(2, int(sqrt(ab_prod))+1):
+        if ab_prod%A == 0:
+            B = ab_prod//A
+            if len(assess_1(A+B)) == 0:
+                found_factor_pairs.append([A, B])
+    return found_factor_pairs
 
-    # ensure the generated primes-pool is large enough
-    Prime.is_prime(ceil(sqrt(pd)))
-
-    # determine powers-of-primes factors
-    factor_opts = []
-    p = pd
-    for f in Prime._primes:
-        opts = [1]
-        pf = f
-        while p > 0 and p % f == 0:
-            opts.append(pf)
-            pf *= f
-            p //= f
-        if len(opts) > 1:
-            factor_opts.append(opts)
-        if p == 0:
-            break
-
-    # build all factors from the powers-of-primes options
-    lo_factors = set()
-    half_pd = pd // 2
-    for combo in product(*factor_opts):
-        if 1 < (f := reduce(operator.mul, combo, 1)) <= half_pd:
-            lo_factors.add(f)
-
-    # count factor-pair sums that pass statement 1 (w/early exit at #sums>1)
-    found_sums = set()
-    for f in lo_factors:
-        A, B = sorted([f, pd//f])
-        if assess_1(A+B) is None:
-            found_sums.add( (A, B) )
-            if len(found_sums) > 1:
-                return list(found_sums)
-
-    return list(found_sums)
-
-def assess_3(sm: int) -> Union[list[list[int, int]], list[list[int, int], list[int, int]]]:
-    """Assume Statement 1 was already assessed successfully for this `sm`."""
-    found_prods = []
-    for A in range(2, sm//2+1):
-        B = sm - A
-        res2 = assess_2(A*B)
-        if len(res2) == 1: # else fails (which we mostly need)
-            found_prods.append(res2[0])
-            if len(found_prods) > 1:
-                return found_prods
-    return found_prods
+def assess_3(ab_sum: int) -> Union[list[list[int, int]], list[list[int, int], list[int, int]]]:
+    """Assess Statement 3.
+    Assumes this `ab_sum` already passed Statement 1.
+    Return a list containing all partitions of `ab_sum` that PASS Statement 2 when multiplied."""
+    found_partitions = []
+    for A in range(2, ab_sum//2+1):
+        B = ab_sum - A
+        result2 = assess_2(A*B)
+        if len(result2) == 1: # anything length != 1 is a failure
+            found_partitions.append(result2[0]) # flatten it
+            if len(found_partitions) > 1:
+                return found_partitions
+    return found_partitions
 
 RED   = f"\x1b[38;2;{200};{0};{0}m"
 GREEN = f"\x1b[38;2;{0};{180};{0}m"
 RESET = "\x1b[0m"
 tab = "   "
-for s in range(4, 501):
-    if (res1 := assess_1(s)) is None:
-        if len(res3 := assess_3(s)) == 1:
-            print(f"{GREEN}✓{RESET} {s}: Statement 3. Integers A and B are {' and '.join(map(str, res3[0]))}.") # ✅
-        else:
-            prod_str = ' and '.join(map(str, map(prod, res3)))
-            prod_str = ("products " + prod_str) if len(prod_str) > 0 else "no products"
-            print(f"{tab}{RED}×{RESET} {s}: Statement 3, {prod_str} work.") # ❌
-    else:
-        print(f"{tab}{tab}{RED}×{RESET} {s}: Statement 1, partition {' + '.join(map(str, res1))}.") # ❌
+for s in range(4, 101): # smallest conceivable sum is 4 (when A=2 and B=2)
+    if len(result1 := assess_1(s)) == 0: # if statement 1 succeeded
+        if len(result3 := assess_3(s)) == 1: # if statement 3 succeeded
+            print(f"{GREEN}✓{RESET} Sum={s} passes Statement 3. Integers A and B are {' and '.join(map(str, result3[0]))}.")
+        else: # statement 3 failed (number of possible factor-pairs != 1)
+            status = ", ".join(str(AB) for AB in result3) if len(result3)>0 else "(none)"
+            print(f"{tab}{RED}×{RESET} Sum={s} fails Statement 3 because these factor-pairs pass Statement 2: {status}.")
+    else: # statement 1 failed
+        print(f"{tab}{tab}{RED}×{RESET} Sum={s} fails Statement 1 because of these partitions: {', '.join(map(str, result1))}.")

@@ -32,6 +32,6 @@ I was able to explore number spaces orders of magnitude larger than I had done p
 
 ## Challenge
 
-I am including here a fairly naïve program, written in Python, to explore this problem's solution space. But, it won't get you very far because it rapidly slows to a computational crawl. (In its current form, it only generates 16 solutions.) It would probably take years to do what my recent program does in a matter of seconds. Can you do something similar? Better?
+I am including here a very naïve program, written in Python, to explore this problem's solution space. But, it won't get you very far because it rapidly slows to a computational crawl. (In its current form, it only generates 16 solutions.) It would probably take years to do what my recent program does in a matter of seconds. Can you do something similar? Better?
 
 I suggest solving the problem by hand first, to get a bit of a feel for it.
