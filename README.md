@@ -28,10 +28,10 @@ In late July, 2026, I returned to it yet again, but this time with a much more s
 
 I massively succeeded in this effort.
 
-I was able to explore number spaces orders of magnitude larger than I had done previously, thanks to a combination of new strategies, from choosing a fast programming language to implementing some fancy programming techniques to noting and leveraging mathematical properties that I hadn't used before. I have now generated more than ten thousand _solutions_ to the problem.
+I was able to explore number spaces orders of magnitude larger than I had done previously, thanks to a combination of new strategies, from choosing a fast programming language to implementing some fancy programming techniques to noting and leveraging mathematical properties that I hadn't used before. I have now generated well over a hundred thousand _solutions_ to the problem.
 
 ## Challenge
 
-I am including here a very naïve program, written in Python, to explore this problem's solution space. But, it won't get you very far because it rapidly slows to a computational crawl. (In its current form, it only generates 3 solutions.) It would probably take years to do what my recent program does in a matter of seconds. Can you do something similar? Better?
+I am including here a very naïve program, written in Python, to explore this problem's solution space. But, it won't get you very far because it rapidly slows to a computational crawl. (In its current form, it only generates 3 solutions.) It would probably take years to do what my recent program does in a matter of minutes to hours. Can you do something similar? Better?
 
 I suggest solving the problem by hand first, to get a bit of a feel for it.
